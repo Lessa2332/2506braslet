@@ -145,7 +145,7 @@
             margin-top: 2px;
         }
 
-        /* ===== AUTOPLAY OVERLAY (якщо відео не запустилось автоматично) ===== */
+        /* ===== AUTOPLAY OVERLAY (показується тільки при критичній помилці) ===== */
         #autoplay-overlay {
             position: fixed;
             inset: 0;
@@ -246,8 +246,8 @@
 
     <!-- ===== AUTOPLAY OVERLAY ===== -->
     <div id="autoplay-overlay">
-        <div id="autoplay-lbl">Олімпійська голограма готова!<br>Натисніть для запуску презентації</div>
-        <button id="autoplay-btn">▶ Запустити</button>
+        <div id="autoplay-lbl">⚠️ Не вдалося завантажити відео.<br>Перевірте з'єднання або натисніть для повторної спроби.</div>
+        <button id="autoplay-btn">🔄 Спробувати ще раз</button>
     </div>
 
     <!-- ===== ONBOARDING ===== -->
@@ -284,7 +284,8 @@
             hologramScale: 1.1,
             posSmoothing: 0.15,
             rotSmoothing: 0.15,
-            videoSrc: 'assets/video/guide_hologram.mp4', // <-- переконайтесь, що файл існує
+            // ВИПРАВЛЕНО ШЛЯХ – тепер відносний, але ви можете змінити на абсолютний, якщо потрібно
+            videoSrc: 'assets/video/guide_hologram.mp4', 
         };
 
         // ===== DOM =====
@@ -391,15 +392,10 @@
         hPlane.position.y = CFG.hologramOffsetY;
         hologramGroup.add(hPlane);
 
-        // Якщо відео завантажилось – підлаштовуємо пропорції
-        hVideo.addEventListener('loadedmetadata', () => {
-            const asp = hVideo.videoWidth / hVideo.videoHeight;
-            hPlane.scale.set(CFG.hologramScale, CFG.hologramScale / asp, 1);
-        });
-
         // ===== СТАН ВІДЕО =====
         let videoPlayed = false;
         let hologramActive = false;
+        let videoLoadError = false;
 
         function resetVideoState() {
             videoPlayed = false;
@@ -410,6 +406,7 @@
             autoplayOverlay.classList.remove('visible');
             hologramGroup.visible = false;
             replayBtn.style.display = 'none';
+            videoLoadError = false;
         }
 
         function showReplayButton() {
@@ -427,8 +424,8 @@
                 hologramGroup.visible = true;
                 hMat.uniforms.uPlaying.value = 1;
                 replayBtn.style.display = 'none';
-            }).catch(() => {
-                // Якщо не вдалося – показуємо оверлей
+            }).catch((err) => {
+                console.warn('Replay failed:', err);
                 autoplayOverlay.classList.add('visible');
             });
         });
@@ -441,6 +438,15 @@
             }
         });
 
+        // Якщо відео не завантажилось – показуємо оверлей
+        hVideo.addEventListener('error', (e) => {
+            console.error('Video load error:', e);
+            videoLoadError = true;
+            if (hologramActive) {
+                autoplayOverlay.classList.add('visible');
+            }
+        });
+
         // Autoplay overlay – на випадок, якщо відео не запустилось автоматично
         autoplayBtn.addEventListener('click', () => {
             autoplayOverlay.classList.remove('visible');
@@ -450,25 +456,8 @@
                 hologramActive = true;
                 hologramGroup.visible = true;
                 hMat.uniforms.uPlaying.value = 1;
-            }).catch(() => {
-                hVideo.muted = true;
-                hVideo.play().then(() => {
-                    videoPlayed = true;
-                    hologramActive = true;
-                    hologramGroup.visible = true;
-                    hMat.uniforms.uPlaying.value = 1;
-                }).catch(() => {});
-            });
-        });
-
-        function tryAutoplay() {
-            hVideo.muted = false;
-            hVideo.play().then(() => {
-                videoPlayed = true;
-                hologramActive = true;
-                hologramGroup.visible = true;
-                hMat.uniforms.uPlaying.value = 1;
-            }).catch(() => {
+            }).catch((err) => {
+                console.warn('Manual play failed:', err);
                 hVideo.muted = true;
                 hVideo.play().then(() => {
                     videoPlayed = true;
@@ -477,6 +466,35 @@
                     hMat.uniforms.uPlaying.value = 1;
                 }).catch(() => {
                     autoplayOverlay.classList.add('visible');
+                });
+            });
+        });
+
+        function tryAutoplay() {
+            // Спроба відтворення без звуку (для обходу політик автозапуску)
+            hVideo.muted = false;
+            hVideo.play().then(() => {
+                videoPlayed = true;
+                hologramActive = true;
+                hologramGroup.visible = true;
+                hMat.uniforms.uPlaying.value = 1;
+                console.log('Video started successfully');
+            }).catch((err) => {
+                console.warn('Autoplay failed, retrying with muted:', err);
+                // Якщо не вдалося – спробуємо з muted
+                hVideo.muted = true;
+                hVideo.play().then(() => {
+                    videoPlayed = true;
+                    hologramActive = true;
+                    hologramGroup.visible = true;
+                    hMat.uniforms.uPlaying.value = 1;
+                    console.log('Video started with muted');
+                }).catch((err2) => {
+                    console.error('Both autoplay attempts failed:', err2);
+                    // Показуємо оверлей тільки якщо це не помилка завантаження (вона вже оброблена)
+                    if (!videoLoadError) {
+                        autoplayOverlay.classList.add('visible');
+                    }
                 });
             });
         }
