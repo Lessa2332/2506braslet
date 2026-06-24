@@ -400,15 +400,15 @@
         </div>
     </div>
 
-    <!-- ===== СТАНЦІЯ 1: ВІТАННЯ (AR) ===== -->
-    <div class="station-container active ar-mode" id="st-welcome">
+    <!-- ===== СТАНЦІЯ 1: ВІТАННЯ (AR) – ТЕПЕР НЕАКТИВНА ЗА ЗАМОВЧУВАННЯМ ===== -->
+    <div class="station-container ar-mode" id="st-welcome">
         <div style="position:absolute; bottom:110px; z-index:200; pointer-events:auto;">
             <button class="btn-next" onclick="goToGeography()">Перейти до кабінету географії ➔</button>
         </div>
     </div>
 
-    <!-- ===== СТАНЦІЯ 2: ГЕОГРАФІЯ ===== -->
-    <div class="station-container" id="st-geography">
+    <!-- ===== СТАНЦІЯ 2: ГЕОГРАФІЯ (АКТИВНА ЗА ЗАМОВЧУВАННЯМ - ПОЧАТОК) ===== -->
+    <div class="station-container active" id="st-geography">
         <div class="olympic-card">
             <h1>Рухайтеся в кабінет географії!</h1>
             <h2 style="color:var(--ol-yellow);">Там на вас чекає перша станція</h2>
@@ -426,7 +426,21 @@
             <p>Свято спорту проходить на центральних вулицях міст, в парках, дитячих таборах, на стадіонах різних регіонів, таким чином охоплює всю Україну.</p>
             <p>Поряд з пересічними громадянами в Олімпійському дні беруть участь й уславлені спортсмени, Олімпійські чемпіони та призери, тріумфатори світових і європейських першостей.</p>
             <p>Якщо стан здоров'я або відсутність обов'язкової медичної довідки не дозволяють усім бажаючим взяти участь у легкоатлетичних забігах, то можна долучитись до численних конкурсів, вікторин та розіграшів. Всі учасники можуть знайти для себе щось корисне і долучитися до олімпійських ідей та цінностей.</p>
-            <a href="interactive_board.html" class="btn-next green" style="display:inline-flex;">Перейти до Руханки ➔</a>
+            <!-- КНОПКА ДЛЯ ОТРИМАННЯ ДОСТУПУ ДО КВЕСТУ -->
+            <button class="btn-next green" onclick="nextStation('st-quest')">Отримати доступ до квесту ➔</button>
+        </div>
+    </div>
+
+    <!-- ===== СТАНЦІЯ 4: ДОСТУП ДО КВЕСТУ (НОВА) ===== -->
+    <div class="station-container" id="st-quest">
+        <div class="olympic-card" style="border-top-color: var(--ol-green);">
+            <h1 style="color: var(--ol-green);">Квест розпочато!</h1>
+            <h2 style="color:var(--ol-black);">Доступ надано</h2>
+            <p style="text-align:center; font-size:20px; font-weight:500;">Ви успішно отримали доступ до олімпійського квесту. <br><br> <strong>Ваше перше завдання:</strong> знайдіть у кабінеті географії 5 захованих олімпійських символів (кілець) та запишіть їхні кольори.</p>
+            <div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: 12px;">
+                <button class="btn-next" onclick="nextStation('st-welcome')" style="background: #6c757d; box-shadow: none;">Повернутися до AR-вітання</button>
+                <button class="btn-next green" onclick="restartWholeApp()">⟳ Розпочати спочатку</button>
+            </div>
         </div>
     </div>
 
@@ -740,7 +754,7 @@
 
         window.restartWholeApp = function() {
             resetVideoState();
-            nextStation('st-welcome');
+            nextStation('st-geography'); // Перезапуск починається з кабінету географії
         };
 
         // ===== ІНІЦІАЛІЗАЦІЯ =====
@@ -766,7 +780,8 @@
                 setPb(100);
                 setTimeout(() => {
                     loadingEl.style.display = 'none';
-                    onboardingEl.classList.add('visible');
+                    // Показуємо підказку тільки якщо активна AR-станція (за замовчуванням ні)
+                    // Але залишаємо можливість її показати пізніше
                     animate();
                     detectionLoop();
                 }, 400);
