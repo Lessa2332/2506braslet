@@ -145,7 +145,7 @@
             margin-top: 2px;
         }
 
-        /* ===== AUTOPLAY OVERLAY (показується тільки при критичній помилці) ===== */
+        /* ===== AUTOPLAY OVERLAY (з'являється після жесту, дає user gesture) ===== */
         #autoplay-overlay {
             position: fixed;
             inset: 0;
@@ -179,7 +179,7 @@
             box-shadow: 0 8px 24px rgba(0, 129, 200, 0.3);
         }
 
-        /* ===== КНОПКА ПЕРЕЗАПУСКУ ВІДЕО ===== */
+        /* ===== КНОПКА ПЕРЕЗАПУСКУ ВІДЕО (з'являється після завершення) ===== */
         #replay-btn {
             position: absolute;
             bottom: 120px;
@@ -246,8 +246,8 @@
 
     <!-- ===== AUTOPLAY OVERLAY ===== -->
     <div id="autoplay-overlay">
-        <div id="autoplay-lbl">⚠️ Не вдалося завантажити відео.<br>Перевірте з'єднання або натисніть для повторної спроби.</div>
-        <button id="autoplay-btn">🔄 Спробувати ще раз</button>
+        <div id="autoplay-lbl">🎥 Олімпійська голограма готова!<br>Натисніть, щоб запустити відео</div>
+        <button id="autoplay-btn">▶ Запустити</button>
     </div>
 
     <!-- ===== ONBOARDING ===== -->
@@ -284,8 +284,7 @@
             hologramScale: 1.1,
             posSmoothing: 0.15,
             rotSmoothing: 0.15,
-            // ВИПРАВЛЕНО ШЛЯХ – тепер відносний, але ви можете змінити на абсолютний, якщо потрібно
-            videoSrc: 'assets/video/guide_hologram.mp4', 
+            videoSrc: 'assets/video/guide_hologram.mp4',
         };
 
         // ===== DOM =====
@@ -392,41 +391,50 @@
         hPlane.position.y = CFG.hologramOffsetY;
         hologramGroup.add(hPlane);
 
+        // ===== КОРЕКТНЕ МАСШТАБУВАННЯ ПРИ ЗАВАНТАЖЕННІ ВІДЕО =====
+        hVideo.addEventListener('loadedmetadata', () => {
+            const asp = hVideo.videoWidth / hVideo.videoHeight;
+            hPlane.scale.set(CFG.hologramScale, CFG.hologramScale / asp, 1);
+        });
+
         // ===== СТАН ВІДЕО =====
         let videoPlayed = false;
         let hologramActive = false;
-        let videoLoadError = false;
 
         function resetVideoState() {
             videoPlayed = false;
-            hologramActive = false;
+            // hologramActive НЕ скидаємо – він означає, що голограма активна,
+            // але відео може бути перезапущене без повторного жесту
             hVideo.pause();
             hVideo.currentTime = 0;
             hMat.uniforms.uPlaying.value = 0;
             autoplayOverlay.classList.remove('visible');
-            hologramGroup.visible = false;
+            // hologramGroup.visible залишаємо, якщо він був видимий
             replayBtn.style.display = 'none';
-            videoLoadError = false;
         }
 
         function showReplayButton() {
             replayBtn.style.display = 'block';
         }
 
-        // Кнопка перезапуску – скидає відео і запускає знову (без жесту)
+        // Кнопка перезапуску – просто перезапускає відео без зміни стану hologramActive
         replayBtn.addEventListener('click', () => {
-            resetVideoState();
-            // Запускаємо відео одразу
+            // Скидаємо тільки відео, не чіпаємо hologramActive
+            hVideo.pause();
+            hVideo.currentTime = 0;
+            hMat.uniforms.uPlaying.value = 0;
+            replayBtn.style.display = 'none';
+
             hVideo.muted = false;
             hVideo.play().then(() => {
                 videoPlayed = true;
-                hologramActive = true;
-                hologramGroup.visible = true;
                 hMat.uniforms.uPlaying.value = 1;
-                replayBtn.style.display = 'none';
-            }).catch((err) => {
-                console.warn('Replay failed:', err);
-                autoplayOverlay.classList.add('visible');
+            }).catch(() => {
+                hVideo.muted = true;
+                hVideo.play().then(() => {
+                    videoPlayed = true;
+                    hMat.uniforms.uPlaying.value = 1;
+                }).catch(() => {});
             });
         });
 
@@ -438,73 +446,31 @@
             }
         });
 
-        // Якщо відео не завантажилось – показуємо оверлей
-        hVideo.addEventListener('error', (e) => {
-            console.error('Video load error:', e);
-            videoLoadError = true;
-            if (hologramActive) {
-                autoplayOverlay.classList.add('visible');
-            }
-        });
-
-        // Autoplay overlay – на випадок, якщо відео не запустилось автоматично
+        // Кнопка оверлея – дає справжній user gesture
         autoplayBtn.addEventListener('click', () => {
             autoplayOverlay.classList.remove('visible');
             hVideo.muted = false;
             hVideo.play().then(() => {
                 videoPlayed = true;
-                hologramActive = true;
-                hologramGroup.visible = true;
                 hMat.uniforms.uPlaying.value = 1;
-            }).catch((err) => {
-                console.warn('Manual play failed:', err);
+            }).catch(() => {
                 hVideo.muted = true;
                 hVideo.play().then(() => {
                     videoPlayed = true;
-                    hologramActive = true;
-                    hologramGroup.visible = true;
                     hMat.uniforms.uPlaying.value = 1;
-                }).catch(() => {
-                    autoplayOverlay.classList.add('visible');
-                });
+                }).catch(() => {});
             });
         });
 
-        function tryAutoplay() {
-            // Спроба відтворення без звуку (для обходу політик автозапуску)
-            hVideo.muted = false;
-            hVideo.play().then(() => {
-                videoPlayed = true;
-                hologramActive = true;
-                hologramGroup.visible = true;
-                hMat.uniforms.uPlaying.value = 1;
-                console.log('Video started successfully');
-            }).catch((err) => {
-                console.warn('Autoplay failed, retrying with muted:', err);
-                // Якщо не вдалося – спробуємо з muted
-                hVideo.muted = true;
-                hVideo.play().then(() => {
-                    videoPlayed = true;
-                    hologramActive = true;
-                    hologramGroup.visible = true;
-                    hMat.uniforms.uPlaying.value = 1;
-                    console.log('Video started with muted');
-                }).catch((err2) => {
-                    console.error('Both autoplay attempts failed:', err2);
-                    // Показуємо оверлей тільки якщо це не помилка завантаження (вона вже оброблена)
-                    if (!videoLoadError) {
-                        autoplayOverlay.classList.add('visible');
-                    }
-                });
-            });
-        }
-
+        // Функція, яка викликається після жесту OK
         function activateHologram() {
             if (hologramActive || videoPlayed) return;
             hologramActive = true;
             hologramGroup.visible = true;
             if ('vibrate' in navigator) navigator.vibrate(100);
-            tryAutoplay();
+
+            // ПОКАЗУЄМО ОВЕРЛЕЙ ЗАВЖДИ – це дає користувачеві можливість натиснути
+            autoplayOverlay.classList.add('visible');
         }
 
         // ===== КАМЕРА (без кнопок – просто включаємо) =====
@@ -526,8 +492,16 @@
                 videoEl.srcObject = await navigator.mediaDevices.getUserMedia({ video: true });
             }
             await videoEl.play();
-            // Дзеркалимо для фронтальної камери
             videoEl.style.transform = facingMode === 'user' ? 'scaleX(-1)' : 'none';
+        }
+
+        // ===== ДИНАМІЧНИЙ DELEGATE (як у неон-браслеті) =====
+        function getDelegate() {
+            try {
+                return document.createElement('canvas').getContext('webgl2') ? 'GPU' : 'CPU';
+            } catch {
+                return 'CPU';
+            }
         }
 
         // ===== ПЕТЛЯ ДЕТЕКЦІЇ ЖЕСТІВ =====
@@ -608,10 +582,11 @@
                     'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm'
                 );
                 setPb(50);
+                // ВИКОРИСТОВУЄМО ДИНАМІЧНИЙ DELEGATE
                 handLandmarker = await HandLandmarker.createFromOptions(vision, {
                     baseOptions: {
                         modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
-                        delegate: 'GPU'
+                        delegate: getDelegate()
                     },
                     runningMode: 'VIDEO',
                     numHands: 1
