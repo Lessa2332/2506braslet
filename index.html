@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>Олімпійські кільця | AR</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>НЕОН-БРАСЛЕТ | AR</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; user-select:none; -webkit-user-select:none; }
         body { overflow:hidden; background:#000; font-family:'Courier New',monospace; }
@@ -11,6 +11,7 @@
         #video  { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:0; }
         #canvas { position:absolute; top:0; left:0; width:100%; height:100%; z-index:1; }
 
+        /* ═══ TOP BAR ═══ */
         .top-bar {
             position:absolute;
             top:max(16px, env(safe-area-inset-top,16px));
@@ -28,6 +29,7 @@
         }
         .top-bar button:active { opacity:.7; }
 
+        /* ═══ LOADING ═══ */
         #loading {
             position:fixed; inset:0; background:#000;
             display:flex; flex-direction:column;
@@ -50,12 +52,14 @@
         .pbwrap { width:100%; max-width:260px; background:rgba(0,255,0,.12); border-radius:4px; height:4px; margin-top:20px; overflow:hidden; }
         .pb { height:100%; background:#0f0; width:0%; transition:width .5s ease; box-shadow:0 0 8px #0f0; }
 
+        /* ═══ ПОЕТАПНИЙ ONBOARDING ═══ */
         #onboarding {
             position:absolute; bottom:max(14px,env(safe-area-inset-bottom,14px));
             left:14px; right:14px; z-index:200;
             display:flex; flex-direction:column; gap:10px;
             pointer-events:none;
         }
+        /* Смужка кроків */
         #step-dots {
             display:flex; justify-content:center; gap:8px; margin-bottom:2px;
         }
@@ -66,6 +70,7 @@
         .sdot.active { background:#0f0; width:44px; box-shadow:0 0 8px #0f0; }
         .sdot.done   { background:rgba(0,255,100,.5); }
 
+        /* Картка кроку */
         #step-card {
             background:rgba(0,0,0,.82);
             border:1.5px solid rgba(0,255,80,.5);
@@ -86,12 +91,14 @@
         #step-title{ font-size:17px; font-weight:bold; color:#fff; line-height:1.3; }
         #step-sub  { font-size:13px; color:rgba(255,220,100,.85); margin-top:4px; line-height:1.4; }
 
+        /* Прогрес-кільце навколо емодзі (відображає що "детектиться") */
         #step-ring {
             position:relative; width:68px; height:68px; flex-shrink:0;
         }
         #step-ring canvas { position:absolute; top:0; left:0; }
         #step-ring-emoji { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:34px; line-height:1; }
 
+        /* ═══ AUTOPLAY OVERLAY ═══ */
         #autoplay-overlay {
             position:fixed; inset:0; background:rgba(0,0,0,.78);
             display:none; align-items:center; justify-content:center;
@@ -109,6 +116,7 @@
             touch-action:manipulation;
         }
 
+        /* ═══ TASK BUTTON (центрований) ═══ */
         #task-btn {
             position:absolute;
             top: 50%;
@@ -141,7 +149,7 @@
 <canvas id="canvas"></canvas>
 
 <div id="loading">
-    <div id="loading-title">🏅 Олімпійські кільця</div>
+    <div id="loading-title">День ДРУЖБИ</div>
     <div class="load-steps">
         <div class="load-step" id="ls-model"><span class="si">🧠</span><span>Завантажую модель руки...</span></div>
         <div class="load-step" id="ls-cam"  ><span class="si">📷</span><span>Вмикаю камеру...</span></div>
@@ -160,7 +168,7 @@
     <button id="autoplay-btn">▶ ЗАПУСТИТИ</button>
 </div>
 
-<button id="task-btn">❤️ Натискай і дізнайся, що тебе очікує сьогодні</button>
+<button id="task-btn">❤️ Натискай і дізнайся,що тебе очікує сьогодні"</button>
 
 <div id="onboarding">
     <div id="step-dots"></div>
@@ -184,7 +192,7 @@ import { FilesetResolver, HandLandmarker }
 
 /* ── CONFIG ── */
 const CFG = {
-    braceletBaseRadius : 0.18,         // базовий радіус для масштабування
+    braceletBaseRadius : 0.18,
     braceletTube       : 0.028,
     handOffsetY        : 0.02,
     hologramOffsetY    : 0.40,
@@ -211,8 +219,8 @@ const taskBtn        = document.getElementById('task-btn');
 /* ── ONBOARDING ── */
 const STEPS = [
     { emoji:'🖐️', num:'КРОК 1 З 2', title:'Покажи долоню', sub:'Підніми руку перед камерою' },
-    { emoji:'👌', num:'КРОК 2 З 2', title:'Покажи знак OK', sub:'З\'єднай великий та вказівний пальці у коло' },
-    { emoji:'✨', num:'ГОТОВО!',     title:'Голограма активована', sub:'Дивись на олімпійські кільця!' },
+    { emoji:'👌', num:'КРОК 2 З 2', title:'Покажи знак OK', sub:'З\'єднай великий та вказівний пальці у圈' },
+    { emoji:'✨', num:'ГОТОВО!',     title:'Голограма активована', sub:'Дивись на браслет!' },
 ];
 let currentStep = 0;
 
@@ -248,16 +256,19 @@ function showStep(idx){
     ringProgress = 0;
 }
 
-let ringProgress  = 0;
+/* Кільце прогресу навколо емодзі */
+let ringProgress  = 0;   /* 0..1 */
 let ringTarget    = 0;
 function drawRing(){
     const s=68, r=30, cx=34, cy=34;
     ringCtx.clearRect(0,0,s,s);
+    /* Фон */
     ringCtx.beginPath();
     ringCtx.arc(cx,cy,r,0,Math.PI*2);
     ringCtx.strokeStyle='rgba(0,255,80,.15)';
     ringCtx.lineWidth=4;
     ringCtx.stroke();
+    /* Прогрес */
     if(ringProgress>0.01){
         ringCtx.beginPath();
         ringCtx.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+Math.PI*2*ringProgress);
@@ -283,64 +294,28 @@ window.addEventListener('resize',()=>{
     renderer.setSize(innerWidth,innerHeight);
 });
 
-/* ── Олімпійські кільця ── */
+/* Браслет */
 const braceletGroup = new THREE.Group();
 scene.add(braceletGroup);
 
-// Кольори: синій, жовтий, чорний, зелений, червоний (в hex)
-const ringColors = [0x00529B, 0xFFD500, 0x000000, 0x009E60, 0xE32636];
-// Розташування в просторі (відносні координати в межах групи)
-// Верхній ряд: синій (x:-0.18), чорний (x:0), червоний (x:0.18)
-// Нижній ряд: жовтий (x:-0.09, y:-0.12), зелений (x:0.09, y:-0.12)
-const ringPositions = [
-    { x:-0.18, y: 0.06 }, // синій
-    { x: 0.0,  y: 0.06 }, // чорний
-    { x: 0.18, y: 0.06 }, // червоний
-    { x:-0.09, y:-0.10 }, // жовтий
-    { x: 0.09, y:-0.10 }, // зелений
-];
+const innerRingGeo = new THREE.TorusGeometry(CFG.braceletBaseRadius-.008, CFG.braceletTube*.8, 64, 72, Math.PI*.7);
+const innerRingMat = new THREE.MeshStandardMaterial({color:0x00ff88,emissive:0x44ff88,emissiveIntensity:CFG.glowIdle,metalness:.8,transparent:true,opacity:.95,depthWrite:false});
+const innerRing = new THREE.Mesh(innerRingGeo, innerRingMat);
+braceletGroup.add(innerRing);
 
-const rings = [];
-ringColors.forEach((col, i) => {
-    const geo = new THREE.TorusGeometry(CFG.braceletBaseRadius * 0.9, CFG.braceletTube * 0.9, 48, 48);
-    const mat = new THREE.MeshStandardMaterial({
-        color: col,
-        emissive: col,
-        emissiveIntensity: CFG.glowIdle * 0.8,
-        metalness: 0.7,
-        roughness: 0.3,
-        transparent: true,
-        opacity: 0.95,
-        depthWrite: false,
-    });
-    const mesh = new THREE.Mesh(geo, mat);
-    // Додаємо невеликий зсув за Z для імітації переплетення (верхній ряд трохи попереду)
-    mesh.position.set(ringPositions[i].x, ringPositions[i].y, i < 3 ? 0.01 : -0.01);
-    braceletGroup.add(mesh);
-    rings.push(mesh);
+const outerRingGeo = new THREE.TorusGeometry(CFG.braceletBaseRadius+.008, .008, 64, 72, Math.PI*.7);
+const outerRingMat = new THREE.MeshStandardMaterial({color:0x88ffaa,emissive:0x88ff88,emissiveIntensity:.6,transparent:true,opacity:.9,depthWrite:false});
+const outerRing = new THREE.Mesh(outerRingGeo, outerRingMat);
+braceletGroup.add(outerRing);
 
-    // Додаткове тонке зовнішнє кільце для світіння
-    const glowGeo = new THREE.TorusGeometry(CFG.braceletBaseRadius * 0.9 + 0.005, 0.006, 32, 32);
-    const glowMat = new THREE.MeshBasicMaterial({
-        color: col,
-        transparent: true,
-        opacity: 0.3,
-        depthWrite: false,
-    });
-    const glowMesh = new THREE.Mesh(glowGeo, glowMat);
-    glowMesh.position.copy(mesh.position);
-    braceletGroup.add(glowMesh);
-    rings.push(glowMesh); // додаємо до загального масиву для оновлення
-});
-
-// Точкове світло
-const ptLight = new THREE.PointLight(0x44ff88, CFG.glowIdle * 0.5, 2);
+const ptLight = new THREE.PointLight(0x44ff88, CFG.glowIdle, 2);
 braceletGroup.add(ptLight);
 
-/* ── Голограма ── */
+/* Голограма */
 const hologramGroup = new THREE.Group();
 scene.add(hologramGroup);
 
+/* FIX: crossOrigin ДО src, muted=true для iOS */
 const hVideo = document.createElement('video');
 hVideo.setAttribute('playsinline','');
 hVideo.setAttribute('crossorigin','anonymous');
@@ -354,6 +329,7 @@ const vTex = new THREE.VideoTexture(hVideo);
 vTex.minFilter = THREE.LinearFilter;
 vTex.magFilter = THREE.LinearFilter;
 
+/* ═══ ХРОМАКЕЙ ШЕЙДЕР — ОНОВЛЕНИЙ БЕЗ СМУЖОК ═══ */
 const vShader = `varying vec2 vUv;
 void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`;
 
@@ -374,20 +350,30 @@ vec3 rgb2hsv(vec3 c){
 
 void main(){
     if(uPlaying<0.5){ discard; }
+
     vec4 col = texture2D(uTex, vUv);
     vec3 hsv = rgb2hsv(col.rgb);
+
     float hDeg = hsv.x * 360.0;
+    
+    // Видаляємо основний масив зеленого кольору
     bool isChroma = (hDeg > 75.0 && hDeg < 170.0)
                   && hsv.y > 0.24
                   && hsv.z > 0.08;
+
     if(isChroma) discard;
+
+    // М'яке згладжування контурів зелені на краях об'єкта
     float edgeMask = 1.0;
     if(hDeg > 70.0 && hDeg < 175.0 && hsv.y > 0.14 && hsv.z > 0.06){
         float blend = smoothstep(0.14, 0.28, hsv.y);
         edgeMask = 1.0 - blend;
         if(edgeMask < 0.05) discard;
     }
-    float dummy = uTime * 0.0;
+
+    // ТУТ ВИДАЛЕНО СМУЖКИ, ШУМ ТА ОЗЕЛЕНЕННЯ. Залишаємо чистий вихідний колір відео!
+    // Додаємо мікро-залежність від uTime, щоб уникнути помилок компіляції через невикористану змінну
+    float dummy = uTime * 0.0; 
     gl_FragColor = vec4(col.rgb, edgeMask * 1.0 + dummy);
 }`;
 
@@ -444,6 +430,7 @@ hVideo.addEventListener('ended',()=>{
     showTaskBtn();
 });
 
+/* Autoplay overlay — user gesture на мобільних */
 autoplayBtn.addEventListener('click',()=>{
     autoplayOverlay.classList.remove('visible');
     hVideo.muted=false;
@@ -483,9 +470,13 @@ function activateHologram(){
     tryAutoplay();
 }
 
-/* ═══ МЕХАНІЗМ ДЗЕРКАЛЮВАННЯ ВІДЕО ═══ */
+/* ═══ МЕХАНІЗМ ДЗЕРКАЛЮВАННЯ ВІДЕО ДЛЯ ФРОНТАЛЬНОЇ КАМЕРИ ═══ */
 function updateVideoMirror() {
-    videoEl.style.transform = (facingMode === 'user') ? 'scaleX(-1)' : 'none';
+    if (facingMode === 'user') {
+        videoEl.style.transform = 'scaleX(-1)';  // дзеркалимо для зручності
+    } else {
+        videoEl.style.transform = 'none';
+    }
 }
 
 /* ═══ MEDIAPIPE ═══ */
@@ -528,15 +519,16 @@ async function startCamera(){
     renderer.setSize(innerWidth,innerHeight);
     document.getElementById('ls-cam').classList.replace('active','done');
     setPb(80);
-    updateVideoMirror();
+    updateVideoMirror();  // застосувати дзеркалювання після запуску
     return true;
 }
 
 /* ── DETECTION STATE ── */
 let handVisible=false, okState=false, lastOkState=false;
 let rotX=0, rotZ=0;
+/* для кільця прогресу OK-знаку */
 let okHoldTime=0;
-const OK_HOLD_MS=300;
+const OK_HOLD_MS=300; /* тримати 0.3с щоб виключити хибні спрацьовування */
 
 function getWristRot(lm,mirrored){
     const dx=(mirrored?-1:1)*(lm[5].x-lm[17].x), dy=lm[5].y-lm[17].y, dz=(lm[5].z||0)-(lm[17].z||0);
@@ -557,9 +549,10 @@ function detectionLoop(){
 
         if(!handVisible){
             handVisible=true;
-            if(!hologramActive&&!videoPlayed) showStep(1);
+            if(!hologramActive&&!videoPlayed) showStep(1); /* крок 2 — OK */
         }
 
+        /* Позиція браслета */
         const wc={ x:(lm[0].x+lm[17].x)/2, y:(lm[0].y+lm[17].y)/2, z:((lm[0].z||0)+(lm[17].z||0))/2 };
         const fv={ x:wc.x-(lm[5].x+lm[9].x+lm[13].x+lm[17].x)/4, y:wc.y-(lm[5].y+lm[9].y+lm[13].y+lm[17].y)/4, z:0 };
         const fl=Math.hypot(fv.x,fv.y)||1;
@@ -572,8 +565,7 @@ function detectionLoop(){
         hologramGroup.position.y+=CFG.hologramOffsetY;
 
         const sc=Math.min(Math.max(getWristW(lm)/CFG.braceletBaseRadius,.7),1.5);
-        // масштабуємо всі кільця
-        braceletGroup.scale.set(sc, sc, sc);
+        innerRing.scale.setScalar(sc); outerRing.scale.setScalar(sc);
 
         const rot=getWristRot(lm,mir);
         rotX+=(rot.x-rotX)*CFG.rotSmoothing;
@@ -581,13 +573,14 @@ function detectionLoop(){
         braceletGroup.rotation.set(rotX,0,rotZ);
         braceletGroup.visible=true;
 
-        /* OK-SIGN DETECTION */
+        /* ── OK-SIGN DETECTION ── */
         const palmSz=Math.hypot(lm[0].x-lm[9].x,lm[0].y-lm[9].y)||.001;
         const okD=Math.hypot(lm[4].x-lm[8].x,lm[4].y-lm[8].y);
         const circle = okD < palmSz*.5;
         const ext3   = [12,16,20].filter(t=>lm[t].y < lm[t-2].y-.008).length>=2;
         okState = circle && ext3;
 
+        /* Кільце прогресу під час утримання OK */
         if(okState && !hologramActive && !videoPlayed){
             okHoldTime = Math.min(okHoldTime+16, OK_HOLD_MS);
             ringTarget = okHoldTime/OK_HOLD_MS;
@@ -616,21 +609,16 @@ function animate(){
     requestAnimationFrame(animate);
     const t=performance.now()/1000;
 
+    /* Кільце прогресу (плавно) */
     ringProgress+=(ringTarget-ringProgress)*.15;
     drawRing();
 
     if(braceletGroup.visible){
-        // обертаємо всі кільця навколо центральної осі
-        braceletGroup.rotation.y += CFG.rotationSpeed * 1.5;
-        // змінюємо інтенсивність світіння залежно від стану
-        const tg = hologramActive ? CFG.glowActive : CFG.glowIdle;
-        // оновлюємо матеріали кожного кільця (тільки основні, без glow)
-        rings.forEach((mesh, idx) => {
-            if (idx % 2 === 0) { // основні кільця (парні індекси)
-                mesh.material.emissiveIntensity += (tg * 0.8 - mesh.material.emissiveIntensity) * 0.08;
-            }
-        });
-        ptLight.intensity = tg * 0.5;
+        innerRing.rotation.y+=CFG.rotationSpeed;
+        outerRing.rotation.y-=CFG.rotationSpeed*.8;
+        const tg=hologramActive?CFG.glowActive:CFG.glowIdle;
+        innerRingMat.emissiveIntensity+=(tg-innerRingMat.emissiveIntensity)*.08;
+        ptLight.intensity=innerRingMat.emissiveIntensity*.9;
     }
 
     if(hologramGroup.visible){
@@ -648,7 +636,7 @@ function animate(){
 cameraToggleBtn.addEventListener('click',async()=>{
     facingMode=facingMode==='environment'?'user':'environment';
     await startCamera();
-    updateVideoMirror();
+    updateVideoMirror();  // важливо: оновлюємо дзеркалювання після зміни камери
 });
 
 resetBtn.addEventListener('click',()=>{
@@ -661,14 +649,17 @@ resetBtn.addEventListener('click',()=>{
 
 taskBtn.addEventListener('click',()=>window.open(CFG.telegramUrl,'_blank'));
 
+/* ═══ CLEANUP ═══ */
 window.addEventListener('pagehide',()=>{
     vTex.dispose(); hMat.dispose();
-    rings.forEach(m=>{ if(m.geometry) m.geometry.dispose(); if(m.material) m.material.dispose(); });
+    innerRingGeo.dispose(); innerRingMat.dispose();
+    outerRingGeo.dispose(); outerRingMat.dispose();
     renderer.dispose();
 });
 
 /* ═══ INIT ═══ */
 function setPb(v){ document.getElementById('pb').style.width=v+'%'; }
+function setLS(id,st){ document.getElementById(id).classList.replace(st==='active'?'done':'active', st==='active'?'active':'done'); document.getElementById(id).classList.add(st); }
 
 async function init(){
     try{
