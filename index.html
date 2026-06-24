@@ -61,33 +61,14 @@
             border-radius: 50%;
             animation: bounce 1.2s infinite ease-in-out;
         }
-        .ol-circle:nth-child(1) {
-            background: #0081C8;
-            animation-delay: -0.4s;
-        }
-        .ol-circle:nth-child(2) {
-            background: #FCB131;
-            animation-delay: -0.3s;
-        }
-        .ol-circle:nth-child(3) {
-            background: #000000;
-            animation-delay: -0.2s;
-        }
-        .ol-circle:nth-child(4) {
-            background: #00A651;
-            animation-delay: -0.1s;
-        }
-        .ol-circle:nth-child(5) {
-            background: #EE334E;
-        }
+        .ol-circle:nth-child(1) { background: #0081C8; animation-delay: -0.4s; }
+        .ol-circle:nth-child(2) { background: #FCB131; animation-delay: -0.3s; }
+        .ol-circle:nth-child(3) { background: #000000; animation-delay: -0.2s; }
+        .ol-circle:nth-child(4) { background: #00A651; animation-delay: -0.1s; }
+        .ol-circle:nth-child(5) { background: #EE334E; }
         @keyframes bounce {
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-20px);
-            }
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-20px); }
         }
 
         .pbwrap {
@@ -105,7 +86,7 @@
             transition: width .4s ease;
         }
 
-        /* ===== ONBOARDING (підказки) ===== */
+        /* ===== ONBOARDING ===== */
         #onboarding {
             position: absolute;
             bottom: max(20px, env(safe-area-inset-bottom, 20px));
@@ -131,55 +112,46 @@
             max-width: 480px;
             border-left: 6px solid #0081C8;
         }
-        #step-ring-emoji {
-            font-size: 36px;
-        }
-        #step-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #111;
-        }
-        #step-sub {
-            font-size: 14px;
-            color: #555;
-            margin-top: 2px;
-        }
+        #step-ring-emoji { font-size: 36px; }
+        #step-title { font-size: 18px; font-weight: 700; color: #111; }
+        #step-sub { font-size: 14px; color: #555; margin-top: 2px; }
 
-        /* ===== AUTOPLAY OVERLAY (з'являється після жесту, дає user gesture) ===== */
+        /* ===== AUTOPLAY OVERLAY (тепер показується ЗАВЖДИ після жесту) ===== */
         #autoplay-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.78);
             display: none;
             align-items: center;
             justify-content: center;
             z-index: 500;
             flex-direction: column;
-            gap: 20px;
+            gap: 18px;
         }
-        #autoplay-overlay.visible {
-            display: flex;
-        }
+        #autoplay-overlay.visible { display: flex; }
         #autoplay-lbl {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            padding: 0 28px;
+            line-height: 1.5;
+        }
+        #autoplay-btn {
+            background: linear-gradient(135deg, #00A651, #00803e);
             color: #fff;
             font-size: 20px;
             font-weight: 700;
-            text-align: center;
-            padding: 0 24px;
-        }
-        #autoplay-btn {
-            background: linear-gradient(135deg, #0081C8, #0066a0);
-            color: #fff;
-            border: none;
             padding: 18px 46px;
-            font-size: 18px;
-            font-weight: 700;
-            border-radius: 50px;
+            border-radius: 60px;
+            border: none;
             cursor: pointer;
-            box-shadow: 0 8px 24px rgba(0, 129, 200, 0.3);
+            box-shadow: 0 0 30px rgba(0, 166, 81, 0.6);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
-        /* ===== КНОПКА ПЕРЕЗАПУСКУ ВІДЕО (з'являється після завершення) ===== */
+        /* ===== КНОПКА ПЕРЕЗАПУСКУ ВІДЕО ===== */
         #replay-btn {
             position: absolute;
             bottom: 120px;
@@ -199,35 +171,22 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             transition: transform 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
-        #replay-btn:active {
-            transform: translateX(-50%) scale(0.95);
-        }
+        #replay-btn:active { transform: translateX(-50%) scale(0.95); }
 
         @media (max-width: 640px) {
-            #step-card {
-                padding: 12px 16px;
-            }
-            #step-ring-emoji {
-                font-size: 28px;
-            }
-            #step-title {
-                font-size: 16px;
-            }
-            #step-sub {
-                font-size: 13px;
-            }
-            #replay-btn {
-                font-size: 16px;
-                padding: 14px 28px;
-                bottom: 100px;
-            }
+            #step-card { padding: 12px 16px; }
+            #step-ring-emoji { font-size: 28px; }
+            #step-title { font-size: 16px; }
+            #step-sub { font-size: 13px; }
+            #replay-btn { font-size: 16px; padding: 14px 28px; bottom: 100px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ===== ВІДЕО (камера) ТА CANVAS ===== -->
     <video id="video" autoplay playsinline muted></video>
     <canvas id="canvas"></canvas>
 
@@ -244,10 +203,10 @@
         <div class="pbwrap"><div class="pb" id="pb"></div></div>
     </div>
 
-    <!-- ===== AUTOPLAY OVERLAY ===== -->
+    <!-- ===== AUTOPLAY OVERLAY (тепер — кнопка запуску після жесту) ===== -->
     <div id="autoplay-overlay">
-        <div id="autoplay-lbl">🎥 Олімпійська голограма готова!<br>Натисніть, щоб запустити відео</div>
-        <button id="autoplay-btn">▶ Запустити</button>
+        <div id="autoplay-lbl">✨ Голограма активована!<br>Торкнись, щоб запустити відео</div>
+        <button id="autoplay-btn">▶ ЗАПУСТИТИ</button>
     </div>
 
     <!-- ===== ONBOARDING ===== -->
@@ -261,10 +220,8 @@
         </div>
     </div>
 
-    <!-- ===== КНОПКА ПЕРЕЗАПУСКУ ВІДЕО ===== -->
     <button id="replay-btn">▶ Програти відео ще раз</button>
 
-    <!-- ===== ІМПОРТ THREE.JS ТА MEDIAPIPE ===== -->
     <script type="importmap">
         {
             "imports": {
@@ -298,17 +255,17 @@
 
         // ===== THREE.JS СЦЕНА =====
         const scene = new THREE.Scene();
-        const cam3 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const cam3 = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 1000);
         cam3.position.set(0, 0, 3.0);
         const renderer = new THREE.WebGLRenderer({ canvas: canvasEl, alpha: true, antialias: true });
         renderer.setClearColor(0, 0);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+        renderer.setSize(innerWidth, innerHeight);
 
-        window.addEventListener('resize', () => {
-            cam3.aspect = window.innerWidth / window.innerHeight;
+        addEventListener('resize', () => {
+            cam3.aspect = innerWidth / innerHeight;
             cam3.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setSize(innerWidth, innerHeight);
         });
 
         // ===== 5 КІЛЕЦЬ =====
@@ -346,6 +303,9 @@
         hVideo.load();
 
         const vTex = new THREE.VideoTexture(hVideo);
+        vTex.minFilter = THREE.LinearFilter;
+        vTex.magFilter = THREE.LinearFilter;
+
         const vShader =
             `varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`;
         const fShader = `
@@ -375,7 +335,7 @@
               edgeMask = 1.0 - smoothstep(0.14, 0.28, hsv.y);
               if(edgeMask < 0.05) discard;
             }
-            gl_FragColor = vec4(col.rgb, col.a * edgeMask);
+            gl_FragColor = vec4(col.rgb, edgeMask);
           }
         `;
 
@@ -391,54 +351,68 @@
         hPlane.position.y = CFG.hologramOffsetY;
         hologramGroup.add(hPlane);
 
-        // ===== КОРЕКТНЕ МАСШТАБУВАННЯ ПРИ ЗАВАНТАЖЕННІ ВІДЕО =====
+        // ✅ Коректний aspect ratio відео
         hVideo.addEventListener('loadedmetadata', () => {
-            const asp = hVideo.videoWidth / hVideo.videoHeight;
-            hPlane.scale.set(CFG.hologramScale, CFG.hologramScale / asp, 1);
+            if (hVideo.videoWidth && hVideo.videoHeight) {
+                const asp = hVideo.videoWidth / hVideo.videoHeight;
+                hPlane.scale.set(CFG.hologramScale, CFG.hologramScale / asp, 1);
+            }
         });
 
         // ===== СТАН ВІДЕО =====
         let videoPlayed = false;
         let hologramActive = false;
 
-        function resetVideoState() {
-            videoPlayed = false;
-            // hologramActive НЕ скидаємо – він означає, що голограма активна,
-            // але відео може бути перезапущене без повторного жесту
-            hVideo.pause();
-            hVideo.currentTime = 0;
-            hMat.uniforms.uPlaying.value = 0;
+        // ✅ ВИПРАВЛЕННЯ №1: безпечний вибір delegate (GPU → CPU fallback)
+        function getDelegate() {
+            try {
+                const c = document.createElement('canvas');
+                return c.getContext('webgl2') ? 'GPU' : 'CPU';
+            } catch { return 'CPU'; }
+        }
+
+        // ✅ ВИПРАВЛЕННЯ №2: оверлей тепер = кнопка запуску, а не «помилка»
+        function showAutoplayOverlay() {
+            autoplayOverlay.classList.add('visible');
+        }
+        function hideAutoplayOverlay() {
             autoplayOverlay.classList.remove('visible');
-            // hologramGroup.visible залишаємо, якщо він був видимий
-            replayBtn.style.display = 'none';
         }
 
         function showReplayButton() {
             replayBtn.style.display = 'block';
         }
 
-        // Кнопка перезапуску – просто перезапускає відео без зміни стану hologramActive
-        replayBtn.addEventListener('click', () => {
-            // Скидаємо тільки відео, не чіпаємо hologramActive
-            hVideo.pause();
-            hVideo.currentTime = 0;
-            hMat.uniforms.uPlaying.value = 0;
-            replayBtn.style.display = 'none';
-
+        // Запуск відео (універсальна функція — зі звуком, при помилці — muted)
+        function playHologramVideo() {
             hVideo.muted = false;
             hVideo.play().then(() => {
                 videoPlayed = true;
                 hMat.uniforms.uPlaying.value = 1;
             }).catch(() => {
+                // iOS/Android часто блокують звук без user gesture — пробуємо muted
                 hVideo.muted = true;
                 hVideo.play().then(() => {
                     videoPlayed = true;
                     hMat.uniforms.uPlaying.value = 1;
                 }).catch(() => {});
             });
+        }
+
+        // Кнопка оверлея — СПРАВЖНІЙ user gesture, тому play() зі звуком пройде
+        autoplayBtn.addEventListener('click', () => {
+            hideAutoplayOverlay();
+            playHologramVideo();
         });
 
-        // Подія завершення відео
+        // ✅ ВИПРАВЛЕННЯ №3: replay-btn більше не ламає стан
+        replayBtn.addEventListener('click', () => {
+            videoPlayed = false;
+            hVideo.currentTime = 0;
+            replayBtn.style.display = 'none';
+            playHologramVideo();
+        });
+
         hVideo.addEventListener('ended', () => {
             if (hologramActive) {
                 hMat.uniforms.uPlaying.value = 0;
@@ -446,34 +420,20 @@
             }
         });
 
-        // Кнопка оверлея – дає справжній user gesture
-        autoplayBtn.addEventListener('click', () => {
-            autoplayOverlay.classList.remove('visible');
-            hVideo.muted = false;
-            hVideo.play().then(() => {
-                videoPlayed = true;
-                hMat.uniforms.uPlaying.value = 1;
-            }).catch(() => {
-                hVideo.muted = true;
-                hVideo.play().then(() => {
-                    videoPlayed = true;
-                    hMat.uniforms.uPlaying.value = 1;
-                }).catch(() => {});
-            });
+        hVideo.addEventListener('error', (e) => {
+            console.error('Video load error:', e);
         });
 
-        // Функція, яка викликається після жесту OK
+        // ✅ ВИПРАВЛЕННЯ №4: activateHologram ЗАВЖДИ показує оверлей
         function activateHologram() {
             if (hologramActive || videoPlayed) return;
             hologramActive = true;
             hologramGroup.visible = true;
             if ('vibrate' in navigator) navigator.vibrate(100);
-
-            // ПОКАЗУЄМО ОВЕРЛЕЙ ЗАВЖДИ – це дає користувачеві можливість натиснути
-            autoplayOverlay.classList.add('visible');
+            showAutoplayOverlay(); // ← тепер завжди показуємо кнопку запуску
         }
 
-        // ===== КАМЕРА (без кнопок – просто включаємо) =====
+        // ===== КАМЕРА =====
         let handLandmarker = null;
         let facingMode = 'user';
 
@@ -489,28 +449,26 @@
             try {
                 videoEl.srcObject = await navigator.mediaDevices.getUserMedia(constraints);
             } catch {
-                videoEl.srcObject = await navigator.mediaDevices.getUserMedia({ video: true });
+                try {
+                    videoEl.srcObject = await navigator.mediaDevices.getUserMedia({ video: true });
+                } catch {
+                    document.getElementById('load-status').innerHTML =
+                        '<span style="color:#EE334E">❌ Немає доступу до камери.</span>';
+                    return false;
+                }
             }
             await videoEl.play();
             videoEl.style.transform = facingMode === 'user' ? 'scaleX(-1)' : 'none';
-        }
-
-        // ===== ДИНАМІЧНИЙ DELEGATE (як у неон-браслеті) =====
-        function getDelegate() {
-            try {
-                return document.createElement('canvas').getContext('webgl2') ? 'GPU' : 'CPU';
-            } catch {
-                return 'CPU';
-            }
+            return true;
         }
 
         // ===== ПЕТЛЯ ДЕТЕКЦІЇ ЖЕСТІВ =====
-        let rotX = 0,
-            rotZ = 0,
-            okHoldTime = 0;
+        let rotZ = 0;
+        let okHoldTime = 0;
+        const OK_HOLD_MS = 300;
 
         function detectionLoop() {
-            if (!handLandmarker || videoEl.readyState < 2) {
+            if (!handLandmarker || videoEl.readyState < 2 || !videoEl.videoWidth) {
                 requestAnimationFrame(detectionLoop);
                 return;
             }
@@ -520,7 +478,6 @@
             if (res.landmarks && res.landmarks.length > 0) {
                 const lm = res.landmarks[0];
 
-                // Позиція зап'ястя
                 const wc = {
                     x: (lm[0].x + lm[17].x) / 2,
                     y: (lm[0].y + lm[17].y) / 2,
@@ -537,9 +494,8 @@
                 hologramGroup.position.copy(olympicGroup.position);
                 hologramGroup.position.y += CFG.hologramOffsetY;
 
-                // Поворот
-                const dx = (isMirrored ? -1 : 1) * (lm[5].x - lm[17].x),
-                    dy = lm[5].y - lm[17].y;
+                const dx = (isMirrored ? -1 : 1) * (lm[5].x - lm[17].x);
+                const dy = lm[5].y - lm[17].y;
                 const targetZ = Math.atan2(dy, dx) + Math.PI / 2;
                 rotZ += (targetZ - rotZ) * CFG.rotSmoothing;
                 olympicGroup.rotation.set(0, 0, rotZ);
@@ -551,9 +507,9 @@
                 const isOk = (okDist < palmSize * 0.5) &&
                     ([12, 16, 20].filter(t => lm[t].y < lm[t - 2].y - 0.008).length >= 2);
 
-                if (isOk && !hologramActive) {
+                if (isOk && !hologramActive && !videoPlayed) {
                     okHoldTime += 16;
-                    if (okHoldTime >= 300) {
+                    if (okHoldTime >= OK_HOLD_MS) {
                         activateHologram();
                         okHoldTime = 0;
                     }
@@ -582,18 +538,17 @@
                     'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm'
                 );
                 setPb(50);
-                // ВИКОРИСТОВУЄМО ДИНАМІЧНИЙ DELEGATE
                 handLandmarker = await HandLandmarker.createFromOptions(vision, {
                     baseOptions: {
                         modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
-                        delegate: getDelegate()
+                        delegate: getDelegate()   // ✅ безпечний fallback
                     },
                     runningMode: 'VIDEO',
                     numHands: 1
                 });
                 setPb(70);
-                await startCamera();
-                setPb(90);
+                const ok = await startCamera();
+                if (!ok) return;
                 setPb(100);
                 setTimeout(() => {
                     loadingEl.style.display = 'none';
@@ -603,7 +558,7 @@
             } catch (e) {
                 console.error(e);
                 document.getElementById('load-status').innerHTML =
-                    '<span style="color:#EE334E">❌ Не вдалося отримати доступ до камери або ресурсів.</span>';
+                    '<span style="color:#EE334E">❌ Не вдалося завантажити ресурси. Оновіть сторінку.</span>';
             }
         }
 
