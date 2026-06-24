@@ -5,17 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ГОЛОГРАМА | ОЛІМПІЙСЬКИЙ ДЕНЬ</title>
     <style>
-        /* ===== Стилі залишено з оригіналу ===== */
-        :root {
-            --ol-blue: #0081C8;
-            --ol-yellow: #FCB131;
-            --ol-black: #000000;
-            --ol-green: #00A651;
-            --ol-red: #EE334E;
-            --bg-light: #F4F6F9;
-            --card-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -25,9 +14,8 @@
         }
         body {
             overflow: hidden;
-            background: var(--bg-light);
+            background: #000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: #111;
             height: 100vh;
             width: 100vw;
         }
@@ -48,143 +36,6 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-        }
-
-        /* ===== СТАНЦІЇ ===== */
-        .station-container {
-            position: absolute;
-            inset: 0;
-            z-index: 10;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: max(20px, 4vmin);
-            background: rgba(244, 246, 249, 0.96);
-        }
-        .station-container.active {
-            display: flex;
-            animation: slideIn 0.5s cubic-bezier(0.1, 1, 0.1, 1);
-        }
-        .station-container.ar-mode {
-            background: transparent;
-            pointer-events: none;
-        }
-        .station-container.ar-mode * {
-            pointer-events: auto;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: scale(0.96);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        /* ===== КАРТКИ ===== */
-        .olympic-card {
-            background: #fff;
-            border-radius: 32px;
-            padding: 40px;
-            width: 100%;
-            max-width: 900px;
-            box-shadow: var(--card-shadow);
-            border-top: 8px solid var(--ol-blue);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .olympic-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 8px;
-            background: linear-gradient(90deg, var(--ol-blue) 20%, var(--ol-yellow) 20%, var(--ol-yellow) 40%, var(--ol-black) 40%, var(--ol-black) 60%, var(--ol-green) 60%, var(--ol-green) 80%, var(--ol-red) 80%);
-        }
-
-        h1 {
-            font-size: clamp(28px, 4vw, 48px);
-            font-weight: 800;
-            color: var(--ol-blue);
-            text-transform: uppercase;
-            margin-bottom: 24px;
-            letter-spacing: -0.5px;
-        }
-        h2 {
-            font-size: clamp(22px, 3vw, 36px);
-            font-weight: 700;
-            color: #111;
-            margin-bottom: 20px;
-        }
-        p {
-            font-size: clamp(15px, 1.8vw, 19px);
-            line-height: 1.6;
-            color: #444;
-            margin-bottom: 30px;
-            text-align: justify;
-        }
-
-        /* ===== КНОПКИ ===== */
-        .btn-next {
-            background: linear-gradient(135deg, var(--ol-blue), #0066a0);
-            color: #fff;
-            border: none;
-            padding: 18px 46px;
-            font-size: 18px;
-            font-weight: 700;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.25s;
-            box-shadow: 0 8px 24px rgba(0, 129, 200, 0.3);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-        }
-        .btn-next:active {
-            transform: scale(0.95);
-            opacity: 0.9;
-        }
-        .btn-next.green {
-            background: linear-gradient(135deg, var(--ol-green), #00803e);
-            box-shadow: 0 8px 24px rgba(0, 166, 81, 0.3);
-        }
-
-        /* ===== ТОП-БАР ===== */
-        .top-bar {
-            position: absolute;
-            top: max(16px, env(safe-area-inset-top, 16px));
-            left: 16px;
-            right: 16px;
-            display: flex;
-            justify-content: space-between;
-            z-index: 200;
-            pointer-events: none;
-        }
-        .top-bar button {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1.5px solid var(--ol-blue);
-            color: var(--ol-blue);
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            pointer-events: auto;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            transition: 0.2s;
-        }
-        .top-bar button:active {
-            background: var(--ol-blue);
-            color: #fff;
         }
 
         /* ===== LOADING ===== */
@@ -211,23 +62,23 @@
             animation: bounce 1.2s infinite ease-in-out;
         }
         .ol-circle:nth-child(1) {
-            background: var(--ol-blue);
+            background: #0081C8;
             animation-delay: -0.4s;
         }
         .ol-circle:nth-child(2) {
-            background: var(--ol-yellow);
+            background: #FCB131;
             animation-delay: -0.3s;
         }
         .ol-circle:nth-child(3) {
-            background: var(--ol-black);
+            background: #000000;
             animation-delay: -0.2s;
         }
         .ol-circle:nth-child(4) {
-            background: var(--ol-green);
+            background: #00A651;
             animation-delay: -0.1s;
         }
         .ol-circle:nth-child(5) {
-            background: var(--ol-red);
+            background: #EE334E;
         }
         @keyframes bounce {
             0%,
@@ -249,26 +100,23 @@
         }
         .pb {
             height: 100%;
-            background: var(--ol-blue);
+            background: #0081C8;
             width: 0%;
             transition: width .4s ease;
         }
 
-        /* ===== ONBOARDING ===== */
+        /* ===== ONBOARDING (підказки) ===== */
         #onboarding {
             position: absolute;
             bottom: max(20px, env(safe-area-inset-bottom, 20px));
             left: 20px;
             right: 20px;
             z-index: 200;
-            display: none;
+            display: flex;
             flex-direction: column;
             gap: 10px;
             pointer-events: none;
             align-items: center;
-        }
-        #onboarding.visible {
-            display: flex;
         }
         #step-card {
             background: rgba(255, 255, 255, 0.92);
@@ -281,7 +129,7 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             width: 100%;
             max-width: 480px;
-            border-left: 6px solid var(--ol-blue);
+            border-left: 6px solid #0081C8;
         }
         #step-ring-emoji {
             font-size: 36px;
@@ -319,38 +167,61 @@
             text-align: center;
             padding: 0 24px;
         }
-
-        #task-btn {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, var(--ol-green), #00803e);
+        #autoplay-btn {
+            background: linear-gradient(135deg, #0081C8, #0066a0);
             color: #fff;
+            border: none;
+            padding: 18px 46px;
             font-size: 18px;
-            font-weight: bold;
-            padding: 16px 32px;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0, 129, 200, 0.3);
+        }
+
+        /* ===== КНОПКА ПЕРЕЗАПУСКУ ВІДЕО (з'являється після завершення) ===== */
+        #replay-btn {
+            position: absolute;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 300;
+            background: linear-gradient(135deg, #00A651, #00803e);
+            color: #fff;
+            font-size: 20px;
+            font-weight: 700;
+            padding: 16px 40px;
             border-radius: 60px;
             border: none;
-            z-index: 300;
-            display: none;
             cursor: pointer;
-            box-shadow: 0 10px 25px rgba(0, 166, 81, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 166, 81, 0.5);
+            display: none;
             text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: transform 0.2s;
+        }
+        #replay-btn:active {
+            transform: translateX(-50%) scale(0.95);
         }
 
         /* ===== АДАПТИВ ===== */
         @media (max-width: 640px) {
-            .olympic-card {
-                padding: 24px 18px;
+            #step-card {
+                padding: 12px 16px;
             }
-            .top-bar button {
-                font-size: 12px;
-                padding: 6px 14px;
+            #step-ring-emoji {
+                font-size: 28px;
             }
-            .btn-next {
+            #step-title {
+                font-size: 16px;
+            }
+            #step-sub {
+                font-size: 13px;
+            }
+            #replay-btn {
+                font-size: 16px;
                 padding: 14px 28px;
-                font-size: 15px;
+                bottom: 100px;
             }
         }
     </style>
@@ -374,75 +245,25 @@
         <div class="pbwrap"><div class="pb" id="pb"></div></div>
     </div>
 
-    <!-- ===== ТОП-БАР ===== -->
-    <div class="top-bar">
-        <button id="camera-toggle">📷 Змінити Камеру</button>
-        <button id="reset-app" style="display:none;">⟳ Спочатку</button>
-    </div>
-
     <!-- ===== AUTOPLAY OVERLAY ===== -->
     <div id="autoplay-overlay">
         <div id="autoplay-lbl">Олімпійська голограма готова!<br>Натисніть для запуску презентації</div>
         <button class="btn-next" id="autoplay-btn">▶ Запустити</button>
     </div>
 
-    <!-- ===== КНОПКА ТЕЛЕГРАМ ===== -->
-    <button id="task-btn">❤️ Натисни та дізнайся, що тебе очікує сьогодні</button>
-
     <!-- ===== ONBOARDING ===== -->
-    <div id="onboarding" class="visible">
+    <div id="onboarding">
         <div id="step-card">
             <div id="step-ring-emoji">🖐️</div>
             <div>
                 <div id="step-title">Привітання з Олімпійським днем!</div>
-                <div id="step-sub">Покажи долоню, щоб активувати 5 Олімпійських кілець на зап'ясті. Зроби знак OK 👌 для фіксації голограми.</div>
+                <div id="step-sub">Покажи долоню, щоб активувати 5 кілець. Зроби знак OK 👌 для запуску відео.</div>
             </div>
         </div>
     </div>
 
-    <!-- ===== СТАНЦІЯ 1: ВІТАННЯ (AR) – ТЕПЕР НЕАКТИВНА ЗА ЗАМОВЧУВАННЯМ ===== -->
-    <div class="station-container ar-mode" id="st-welcome">
-        <div style="position:absolute; bottom:110px; z-index:200; pointer-events:auto;">
-            <button class="btn-next" onclick="goToGeography()">Перейти до кабінету географії ➔</button>
-        </div>
-    </div>
-
-    <!-- ===== СТАНЦІЯ 2: ГЕОГРАФІЯ (АКТИВНА ЗА ЗАМОВЧУВАННЯМ - ПОЧАТОК) ===== -->
-    <div class="station-container active" id="st-geography">
-        <div class="olympic-card">
-            <h1>Рухайтеся в кабінет географії!</h1>
-            <h2 style="color:var(--ol-yellow);">Там на вас чекає перша станція</h2>
-            <p style="text-align:center; font-size:22px; margin-bottom:40px;">Приготуйтеся зануритися в історію світового спортивного руху та перевірити свій командний дух.</p>
-            <button class="btn-next" onclick="nextStation('st-intro')">Зайти в кабінет ➔</button>
-        </div>
-    </div>
-
-    <!-- ===== СТАНЦІЯ 3: ВСТУП ===== -->
-    <div class="station-container" id="st-intro">
-        <div class="olympic-card" style="max-width: 1000px;">
-            <h1>Вступ: Олімпійський день</h1>
-            <h2 style="text-align:left; font-size:22px; margin-bottom:12px; color:var(--ol-blue);">Про проєкт</h2>
-            <p>Вже стало доброю традицією в усьому світі до дня заснування Міжнародного Олімпійського Комітету (23 червня 1894 року) відзначати Олімпійський день. Олімпійський день – це родинне свято спорту, де кожний знаходить собі заняття до душі та зможе відчути себе справжнім олімпійцем.</p>
-            <p>Свято спорту проходить на центральних вулицях міст, в парках, дитячих таборах, на стадіонах різних регіонів, таким чином охоплює всю Україну.</p>
-            <p>Поряд з пересічними громадянами в Олімпійському дні беруть участь й уславлені спортсмени, Олімпійські чемпіони та призери, тріумфатори світових і європейських першостей.</p>
-            <p>Якщо стан здоров'я або відсутність обов'язкової медичної довідки не дозволяють усім бажаючим взяти участь у легкоатлетичних забігах, то можна долучитись до численних конкурсів, вікторин та розіграшів. Всі учасники можуть знайти для себе щось корисне і долучитися до олімпійських ідей та цінностей.</p>
-            <!-- КНОПКА ДЛЯ ОТРИМАННЯ ДОСТУПУ ДО КВЕСТУ -->
-            <button class="btn-next green" onclick="nextStation('st-quest')">Отримати доступ до квесту ➔</button>
-        </div>
-    </div>
-
-    <!-- ===== СТАНЦІЯ 4: ДОСТУП ДО КВЕСТУ (НОВА) ===== -->
-    <div class="station-container" id="st-quest">
-        <div class="olympic-card" style="border-top-color: var(--ol-green);">
-            <h1 style="color: var(--ol-green);">Квест розпочато!</h1>
-            <h2 style="color:var(--ol-black);">Доступ надано</h2>
-            <p style="text-align:center; font-size:20px; font-weight:500;">Ви успішно отримали доступ до олімпійського квесту. <br><br> <strong>Ваше перше завдання:</strong> знайдіть у кабінеті географії 5 захованих олімпійських символів (кілець) та запишіть їхні кольори.</p>
-            <div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: 12px;">
-                <button class="btn-next" onclick="nextStation('st-welcome')" style="background: #6c757d; box-shadow: none;">Повернутися до AR-вітання</button>
-                <button class="btn-next green" onclick="restartWholeApp()">⟳ Розпочати спочатку</button>
-            </div>
-        </div>
-    </div>
+    <!-- ===== КНОПКА ПЕРЕЗАПУСКУ ВІДЕО ===== -->
+    <button id="replay-btn">▶ Програти відео ще раз</button>
 
     <!-- ===== ІМПОРТ THREE.JS ТА MEDIAPIPE ===== -->
     <script type="importmap">
@@ -465,7 +286,6 @@
             posSmoothing: 0.15,
             rotSmoothing: 0.15,
             videoSrc: 'assets/video/guide_hologram.mp4',
-            telegramUrl: 'https://lessa2332.github.io/1807box/'
         };
 
         // ===== DOM =====
@@ -474,30 +294,8 @@
         const loadingEl = document.getElementById('loading');
         const autoplayOverlay = document.getElementById('autoplay-overlay');
         const autoplayBtn = document.getElementById('autoplay-btn');
-        const cameraToggleBtn = document.getElementById('camera-toggle');
-        const taskBtn = document.getElementById('task-btn');
+        const replayBtn = document.getElementById('replay-btn');
         const onboardingEl = document.getElementById('onboarding');
-
-        // ===== НАВІГАЦІЯ СТАНЦІЙ =====
-        window.nextStation = function(stationId) {
-            document.querySelectorAll('.station-container').forEach(el => el.classList.remove('active'));
-            const nextEl = document.getElementById(stationId);
-            if (nextEl) {
-                nextEl.classList.add('active');
-                if (stationId === 'st-welcome') {
-                    nextEl.classList.add('ar-mode');
-                    onboardingEl.classList.add('visible');
-                } else {
-                    document.getElementById('st-welcome').classList.remove('ar-mode');
-                    onboardingEl.classList.remove('visible');
-                }
-            }
-        };
-
-        window.goToGeography = function() {
-            resetVideoState();
-            nextStation('st-geography');
-        };
 
         // ===== THREE.JS СЦЕНА =====
         const scene = new THREE.Scene();
@@ -535,7 +333,7 @@
             olympicGroup.add(ringMesh);
         });
 
-        // ===== ГОЛОГРАМА =====
+        // ===== ГОЛОГРАМА (ВІДЕО З ХРОМАКЕЄМ) =====
         const hologramGroup = new THREE.Group();
         scene.add(hologramGroup);
 
@@ -593,19 +391,8 @@
         hologramGroup.add(hPlane);
 
         // ===== СТАН ВІДЕО =====
-        let videoPlayed = false,
-            hologramActive = false,
-            taskBtnShown = false;
-
-        function showTaskBtn() {
-            if (!taskBtnShown) { taskBtn.style.display = 'block';
-                taskBtnShown = true; }
-        }
-
-        function hideTaskBtn() {
-            taskBtn.style.display = 'none';
-            taskBtnShown = false;
-        }
+        let videoPlayed = false;
+        let hologramActive = false;
 
         function resetVideoState() {
             videoPlayed = false;
@@ -613,30 +400,57 @@
             hVideo.pause();
             hVideo.currentTime = 0;
             hMat.uniforms.uPlaying.value = 0;
-            hideTaskBtn();
             autoplayOverlay.classList.remove('visible');
             hologramGroup.visible = false;
+            replayBtn.style.display = 'none';
         }
 
+        function showReplayButton() {
+            replayBtn.style.display = 'block';
+        }
+
+        // Кнопка перезапуску – скидає відео і запускає знову (без жесту)
+        replayBtn.addEventListener('click', () => {
+            resetVideoState();
+            // Запускаємо відео одразу
+            hVideo.muted = false;
+            hVideo.play().then(() => {
+                videoPlayed = true;
+                hologramActive = true;
+                hologramGroup.visible = true;
+                hMat.uniforms.uPlaying.value = 1;
+                replayBtn.style.display = 'none';
+            }).catch(() => {
+                // Якщо не вдалося – показуємо оверлей
+                autoplayOverlay.classList.add('visible');
+            });
+        });
+
+        // Подія завершення відео
         hVideo.addEventListener('ended', () => {
             if (hologramActive) {
                 hMat.uniforms.uPlaying.value = 0;
-                showTaskBtn();
+                showReplayButton();
             }
         });
 
+        // Autoplay overlay – на випадок, якщо відео не запустилось автоматично
         autoplayBtn.addEventListener('click', () => {
             autoplayOverlay.classList.remove('visible');
             hVideo.muted = false;
             hVideo.play().then(() => {
                 videoPlayed = true;
+                hologramActive = true;
+                hologramGroup.visible = true;
                 hMat.uniforms.uPlaying.value = 1;
             }).catch(() => {
                 hVideo.muted = true;
                 hVideo.play().then(() => {
                     videoPlayed = true;
+                    hologramActive = true;
+                    hologramGroup.visible = true;
                     hMat.uniforms.uPlaying.value = 1;
-                });
+                }).catch(() => {});
             });
         });
 
@@ -654,9 +468,9 @@
             });
         }
 
-        // ===== КАМЕРА ТА MEDIAPIPE =====
-        let handLandmarker = null,
-            facingMode = 'user';
+        // ===== КАМЕРА (без кнопок – просто включаємо) =====
+        let handLandmarker = null;
+        let facingMode = 'user';
 
         async function startCamera() {
             if (videoEl.srcObject) videoEl.srcObject.getTracks().forEach(t => t.stop());
@@ -673,10 +487,11 @@
                 videoEl.srcObject = await navigator.mediaDevices.getUserMedia({ video: true });
             }
             await videoEl.play();
+            // Дзеркалимо для фронтальної камери
             videoEl.style.transform = facingMode === 'user' ? 'scaleX(-1)' : 'none';
         }
 
-        // ===== ПЕТЛЯ ДЕТЕКЦІЇ =====
+        // ===== ПЕТЛЯ ДЕТЕКЦІЇ ЖЕСТІВ =====
         let rotX = 0,
             rotZ = 0,
             okHoldTime = 0;
@@ -688,12 +503,11 @@
             }
             const res = handLandmarker.detectForVideo(videoEl, performance.now());
             const isMirrored = facingMode === 'user';
-            const isWelcomeActive = document.getElementById('st-welcome').classList.contains('active');
 
-            if (res.landmarks && res.landmarks.length > 0 && isWelcomeActive) {
+            if (res.landmarks && res.landmarks.length > 0) {
                 const lm = res.landmarks[0];
 
-                // Зап'ястя
+                // Позиція зап'ястя
                 const wc = {
                     x: (lm[0].x + lm[17].x) / 2,
                     y: (lm[0].y + lm[17].y) / 2,
@@ -718,7 +532,7 @@
                 olympicGroup.rotation.set(0, 0, rotZ);
                 olympicGroup.visible = true;
 
-                // Детекція OK
+                // Детекція жесту OK
                 const palmSize = Math.hypot(lm[0].x - lm[9].x, lm[0].y - lm[9].y) || 0.001;
                 const okDist = Math.hypot(lm[4].x - lm[8].x, lm[4].y - lm[8].y);
                 const isOk = (okDist < palmSize * 0.5) &&
@@ -726,8 +540,10 @@
 
                 if (isOk && !hologramActive) {
                     okHoldTime += 16;
-                    if (okHoldTime >= 300) { activateHologram();
-                        okHoldTime = 0; }
+                    if (okHoldTime >= 300) {
+                        activateHologram();
+                        okHoldTime = 0;
+                    }
                 } else {
                     okHoldTime = 0;
                 }
@@ -737,25 +553,12 @@
             requestAnimationFrame(detectionLoop);
         }
 
-        // ===== АНІМАЦІЯ =====
+        // ===== АНІМАЦІЙНИЙ ЦИКЛ =====
         function animate() {
             requestAnimationFrame(animate);
             if (hologramGroup.visible) hMat.uniforms.uTime.value = performance.now() / 1000;
             renderer.render(scene, cam3);
         }
-
-        // ===== КНОПКИ =====
-        cameraToggleBtn.addEventListener('click', async () => {
-            facingMode = facingMode === 'user' ? 'environment' : 'user';
-            await startCamera();
-        });
-
-        taskBtn.addEventListener('click', () => window.open(CFG.telegramUrl, '_blank'));
-
-        window.restartWholeApp = function() {
-            resetVideoState();
-            nextStation('st-geography'); // Перезапуск починається з кабінету географії
-        };
 
         // ===== ІНІЦІАЛІЗАЦІЯ =====
         async function mainInit() {
@@ -780,15 +583,13 @@
                 setPb(100);
                 setTimeout(() => {
                     loadingEl.style.display = 'none';
-                    // Показуємо підказку тільки якщо активна AR-станція (за замовчуванням ні)
-                    // Але залишаємо можливість її показати пізніше
                     animate();
                     detectionLoop();
                 }, 400);
             } catch (e) {
                 console.error(e);
                 document.getElementById('load-status').innerHTML =
-                    '<span style="color:var(--ol-red)">❌ Не вдалося отримати доступ до камери або ресурсів.</span>';
+                    '<span style="color:#EE334E">❌ Не вдалося отримати доступ до камери або ресурсів.</span>';
             }
         }
 
