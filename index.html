@@ -116,6 +116,41 @@
         #step-title { font-size: 18px; font-weight: 700; color: #111; }
         #step-sub { font-size: 14px; color: #555; margin-top: 2px; }
 
+        /* ===== AUTOPLAY OVERLAY (прихований за замовчуванням, показується ТІЛЬКИ як крайній fallback) ===== */
+        #autoplay-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.78);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+            flex-direction: column;
+            gap: 18px;
+        }
+        #autoplay-overlay.visible { display: flex; }
+        #autoplay-lbl {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            padding: 0 28px;
+            line-height: 1.5;
+        }
+        #autoplay-btn {
+            background: linear-gradient(135deg, #00A651, #00803e);
+            color: #fff;
+            font-size: 20px;
+            font-weight: 700;
+            padding: 18px 46px;
+            border-radius: 60px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(0, 166, 81, 0.6);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
         /* ===== КНОПКА ПЕРЕЗАПУСКУ ВІДЕО ===== */
         #replay-btn {
             position: absolute;
@@ -168,6 +203,12 @@
         <div class="pbwrap"><div class="pb" id="pb"></div></div>
     </div>
 
+    <!-- ===== AUTOPLAY OVERLAY (крайній fallback, майже ніколи не показується) ===== -->
+    <div id="autoplay-overlay">
+        <div id="autoplay-lbl">⚠️ Відео не запустилося автоматично.<br>Натисніть для запуску</div>
+        <button id="autoplay-btn">▶ ЗАПУСТИТИ</button>
+    </div>
+
     <!-- ===== ONBOARDING ===== -->
     <div id="onboarding">
         <div id="step-card">
@@ -207,6 +248,8 @@
         const videoEl = document.getElementById('video');
         const canvasEl = document.getElementById('canvas');
         const loadingEl = document.getElementById('loading');
+        const autoplayOverlay = document.getElementById('autoplay-overlay');
+        const autoplayBtn = document.getElementById('autoplay-btn');
         const replayBtn = document.getElementById('replay-btn');
         const onboardingEl = document.getElementById('onboarding');
 
@@ -253,7 +296,7 @@
         const hVideo = document.createElement('video');
         hVideo.setAttribute('playsinline', '');
         hVideo.setAttribute('crossorigin', 'anonymous');
-        hVideo.muted = true;
+        hVideo.muted = true;  // ✅ ВАЖЛИВО: починаємо з muted для автозапуску
         hVideo.loop = false;
         hVideo.preload = 'auto';
         hVideo.src = CFG.videoSrc;
@@ -320,7 +363,7 @@
         let videoPlayed = false;
         let hologramActive = false;
 
-        // ✅ ВИПРАВЛЕННЯ: безпечний вибір delegate (GPU → CPU fallback)
+        // ✅ ВИПРАВЛЕННЯ №1: безпечний вибір delegate (GPU → CPU fallback)
         function getDelegate() {
             try {
                 const c = document.createElement('canvas');
@@ -332,33 +375,72 @@
             replayBtn.style.display = 'block';
         }
 
-        // Запуск відео — спочатку зі звуком, при помилці — без звуку
-        function playHologramVideo() {
+        // ✅ ВИПРАВЛЕННЯ №2: АВТОМАТИЧНИЙ ЗАПУСК ВІДЕО (як у НЕОН-БРАСЛЕТІ)
+        function tryAutoplay() {
+            // Спроба 1: зі звуком (можливо спрацює, якщо був user interaction)
             hVideo.muted = false;
             hVideo.play().then(() => {
                 videoPlayed = true;
                 hMat.uniforms.uPlaying.value = 1;
-                console.log('✅ Відео запущено зі звуком');
-            }).catch((err) => {
-                console.warn('⚠️ Автозапуск зі звуком заблоковано, пробуємо без звуку:', err);
-                // iOS/Android часто блокують звук без user gesture — пробуємо muted
+                console.log('✅ Відео запустилося зі звуком');
+            }).catch((err1) => {
+                console.warn('⚠️ Autoplay зі звуком заблоковано:', err1);
+                // Спроба 2: muted (гарантовано працює на мобільних)
                 hVideo.muted = true;
                 hVideo.play().then(() => {
                     videoPlayed = true;
                     hMat.uniforms.uPlaying.value = 1;
-                    console.log('✅ Відео запущено без звуку');
+                    console.log('✅ Відео запустилося muted');
                 }).catch((err2) => {
-                    console.error('❌ Не вдалося запустити відео:', err2);
+                    console.error('❌ Обидві спроби autoplay не вдалися:', err2);
+                    // Крайній fallback: показати оверлей (майже ніколи не трапляється)
+                    autoplayOverlay.classList.add('visible');
                 });
             });
         }
+
+        // ✅ ВИПРАВЛЕННЯ №3: activateHologram викликає tryAutoplay() БЕЗ кнопки
+        function activateHologram() {
+            if (hologramActive || videoPlayed) return;
+            hologramActive = true;
+            hologramGroup.visible = true;
+            if ('vibrate' in navigator) navigator.vibrate(100);
+            console.log('🎯 Жест OK розпізнано — запускаю відео...');
+            tryAutoplay();  // ← АВТОМАТИЧНИЙ ЗАПУСК!
+        }
+
+        // Кнопка оверлея — тільки для крайнього fallback
+        autoplayBtn.addEventListener('click', () => {
+            autoplayOverlay.classList.remove('visible');
+            hVideo.muted = false;
+            hVideo.play().then(() => {
+                videoPlayed = true;
+                hMat.uniforms.uPlaying.value = 1;
+            }).catch(() => {
+                hVideo.muted = true;
+                hVideo.play().then(() => {
+                    videoPlayed = true;
+                    hMat.uniforms.uPlaying.value = 1;
+                });
+            });
+        });
 
         // Кнопка перезапуску
         replayBtn.addEventListener('click', () => {
             videoPlayed = false;
             hVideo.currentTime = 0;
             replayBtn.style.display = 'none';
-            playHologramVideo();
+            hVideo.muted = false;
+            hVideo.play().then(() => {
+                videoPlayed = true;
+                hMat.uniforms.uPlaying.value = 1;
+            }).catch(() => {
+                hVideo.muted = true;
+                hVideo.play().then(() => {
+                    videoPlayed = true;
+                    hMat.uniforms.uPlaying.value = 1;
+                });
+            });
         });
 
         hVideo.addEventListener('ended', () => {
@@ -371,17 +453,6 @@
         hVideo.addEventListener('error', (e) => {
             console.error('Video load error:', e);
         });
-
-        // ✅ АКТИВАЦІЯ ГОЛОГРАМИ ЧЕРЕЗ ЖЕСТ — БЕЗ ОВЕРЛЕЮ
-        function activateHologram() {
-            if (hologramActive || videoPlayed) return;
-            hologramActive = true;
-            hologramGroup.visible = true;
-            if ('vibrate' in navigator) navigator.vibrate(100);
-            
-            // ✅ ЗАПУСКАЄМО ВІДЕО ОДРАЗУ (без оверлея)
-            playHologramVideo();
-        }
 
         // ===== КАМЕРА =====
         let handLandmarker = null;
@@ -460,7 +531,7 @@
                 if (isOk && !hologramActive && !videoPlayed) {
                     okHoldTime += 16;
                     if (okHoldTime >= OK_HOLD_MS) {
-                        activateHologram();
+                        activateHologram();  // ← ТУТ ВІДЕО ЗАПУСКАЄТЬСЯ АВТОМАТИЧНО!
                         okHoldTime = 0;
                     }
                 } else {
